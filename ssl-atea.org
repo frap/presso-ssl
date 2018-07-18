@@ -1,0 +1,99 @@
+#    -*- mode: ord -*-
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:t reveal_control:t
+#+OPTIONS: reveal_mathjax:t reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+OPTIONS: toc:1
+#+REVEAL_MARGIN: 0.2
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_TRANS: cube
+#+REVEAL_THEME: moon
+
+* SSL and other stuff
+  [[./images/complex-sign.jpg]]
+* Public Key Cryptography
+    knowing if you know one prime you can verify another. So having
+  the secret (which is a *password* protecting one of the primes)
+  allows any one that has the other prime (public not password
+  protected) to verify that signatures or encrypting *WAS* done by
+  the root prime.
+  #+ATTR_HTML: : height 400%, width: 400%
+  [[./images/babelfish.png]]
+** RSA maths
+  It's all about maths: actually exponentials and primes. So pick 2
+  primes *p & q*: p = 29, q = 31. Calculate
+  $$n = {p^q} = {29^{31}} = 899$$ Calculate $$t = {(p-1)^{(q-1)}}= {28^{30}}
+  = 840$$ Choose a prime number *e*. *e* needs to be relatively prime to *t*
+  (*t* cannot be divisible by *e*) Lets pick *11*. $$ d * e \equiv 1 \bmod
+  t$$
+
+
+
+
+** RSA keys via openssl
+  $$\frac{1}{n}\sqrt{e^\frac{1}{n} - e^\frac{1}{n+1}}\sim\frac{1}{n^2}$$
+   Generate an AES encrypted RSA key.
+    #+BEGIN_SRC sh
+     openssl genrsa -aes256 -out private/ca.key.pem 4096
+   #+END_SRC
+** X509
+   openssl root CA config
+   #+BEGIN_SRC sh
+[ ca ]
+default_ca = CA_default
+[ CA_default ]
+dir               = /root/atea/ca
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/newcerts
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = $dir/private/.rand
+# The root key and root certificate.
+private_key       = $dir/private/ca.key.pem
+certificate       = $dir/certs/ca.cert.pem
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md        = sha256
+default_days      = 375
+policy            = policy_strict
+[ policy_strict ]
+# The root CA should only sign intermediate certificates that match.
+# See the POLICY FORMAT section of `man ca`.
+countryName             = match
+stateOrProvinceName     = match
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+   #+END_SRC
+
+ #+BEGIN_SRC sh
+
+   #+END_SRC
+* SSL
+
+** below slide
+   #+ATTR_REVEAL: :frag (roll-in)
+ - list item 1
+ - list item 2
+ | a | b | c |
+ ++-+---+---+
+ | 1 | 2 | 3 |
+ | 4 | 5 | 6 |
+ ++-+---+---+
+* Reveal org code
+ #+BEGIN_SRC emacs-lisp
+
+
+
+  (use-package ox-reveal
+  :ensure ox-reveal)
+
+  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  (setq org-reveal-mathjax t)
+
+  (use-package htmlize
+  :ensure t)
+ #+END_SRC
+
+ #+RESULTS:

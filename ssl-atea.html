@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title></title>
+<meta name="author" content="(Andrés Gasson)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/theme/moon.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'http://cdn.jsdelivr.net/reveal.js/3.0.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+     <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+     <style type='text/css'>
+        body {
+           font-family: 'Source Sans Pro', sans-serif;
+        }
+        pre, code {
+           font-family: 'Source Code Pro', monospace;
+        }
+     </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h2 class="author">Andrés Gasson</h2><p class="date">Created: 2017-02-14 Tue 18:34</p>
+</section>
+<section id="table-of-contents">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#/slide-orgheadline1">SSL and other stuff</a></li>
+<li><a href="#/slide-orgheadline5">Public Key Cryptography</a></li>
+<li><a href="#/slide-orgheadline7">SSL</a></li>
+<li><a href="#/slide-orgheadline8">Reveal org code</a></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<section id="slide-orgheadline1">
+<h2 id="orgheadline1">SSL and other stuff</h2>
+
+<div class="figure">
+<p><img src="./images/complex-sign.jpg" alt="complex-sign.jpg" />
+</p>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline5">
+<h2 id="orgheadline5">Public Key Cryptography</h2>
+<p>
+  knowing if you know one prime you can verify another. So having
+the secret (which is a <b>password</b> protecting one of the primes)
+allows any one that has the other prime (public not password
+protected) to verify that signatures or encrypting <b>WAS</b> done by
+the root prime.
+</p>
+
+<div class="figure">
+<p><img src="./images/babelfish.png" alt="babelfish.png" />
+</p>
+</div>
+</section>
+<section id="slide-orgheadline2">
+<h3 id="orgheadline2">RSA maths</h3>
+<p>
+It's all about maths: actually exponentials and primes. So pick 2
+primes <b>p &amp; q</b>: p = 29, q = 31. Calculate
+\[n = {p^q} = {29^{31}} = 899\] Calculate \[t = {(p-1)^{(q-1)}}= {28^{30}}
+  = 840\] Choose a prime number <b>e</b>. <b>e</b> needs to be relatively prime to <b>t</b>
+(<b>t</b> cannot be divisible by <b>e</b>) Lets pick <b>11</b>. \[ d * e \equiv 1 \bmod
+  t\]
+</p>
+
+
+
+
+</section>
+<section id="slide-orgheadline3">
+<h3 id="orgheadline3">RSA keys via openssl</h3>
+<p>
+\[\frac{1}{n}\sqrt{e^\frac{1}{n} - e^\frac{1}{n+1}}\sim\frac{1}{n^2}\]
+ Generate an AES encrypted RSA key.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-sh">openssl genrsa -aes256 -out private/ca.key.pem 4096
+</pre>
+</div>
+</section>
+<section id="slide-orgheadline4">
+<h3 id="orgheadline4">X509</h3>
+<p>
+openssl root CA config
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-sh">[ ca ]
+<span style="color: #f0c674;">default_ca</span> = CA_default
+[ CA_default ]
+<span style="color: #f0c674;">dir</span>               = /root/atea/ca
+<span style="color: #f0c674;">certs</span>             = $<span style="color: #f0c674;">dir</span>/certs
+<span style="color: #f0c674;">crl_dir</span>           = $<span style="color: #f0c674;">dir</span>/crl
+<span style="color: #f0c674;">new_certs_dir</span>     = $<span style="color: #f0c674;">dir</span>/newcerts
+<span style="color: #f0c674;">database</span>          = $<span style="color: #f0c674;">dir</span>/index.txt
+<span style="color: #f0c674;">serial</span>            = $<span style="color: #f0c674;">dir</span>/serial
+<span style="color: #f0c674;">RANDFILE</span>          = $<span style="color: #f0c674;">dir</span>/private/.rand
+<span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">The root key and root certificate.</span>
+<span style="color: #f0c674;">private_key</span>       = $<span style="color: #f0c674;">dir</span>/private/ca.key.pem
+<span style="color: #f0c674;">certificate</span>       = $<span style="color: #f0c674;">dir</span>/certs/ca.cert.pem
+<span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">SHA-1 is deprecated, so use SHA-2 instead.</span>
+<span style="color: #f0c674;">default_md</span>        = sha256
+<span style="color: #f0c674;">default_days</span>      = 375
+<span style="color: #f0c674;">policy</span>            = policy_strict
+[ policy_strict ]
+<span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">The root CA should only sign intermediate certificates that match.</span>
+<span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">See the POLICY FORMAT section of `man ca`.</span>
+<span style="color: #f0c674;">countryName</span>             = match
+<span style="color: #f0c674;">stateOrProvinceName</span>     = match
+<span style="color: #f0c674;">organizationName</span>        = match
+<span style="color: #f0c674;">organizationalUnitName</span>  = optional
+<span style="color: #f0c674;">commonName</span>              = supplied
+<span style="color: #f0c674;">emailAddress</span>            = optional
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh"></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline7">
+<h2 id="orgheadline7">SSL</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div></section>
+<section id="slide-orgheadline6">
+<h3 id="orgheadline6">below slide</h3>
+<ul>
+<li class="fragment roll-in">list item 1</li>
+<li class="fragment roll-in">list item 2</li>
+
+</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">a</td>
+<td class="org-left">b</td>
+<td class="org-left">c</td>
+</tr>
+</tbody>
+</table>
+<p>
+<del>+-</del>&#x2014;+&#x2014;+
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-right">5</td>
+<td class="org-right">6</td>
+</tr>
+</tbody>
+</table>
+<p>
+<del>+-</del>&#x2014;+&#x2014;+
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline8">
+<h2 id="orgheadline8">Reveal org code</h2>
+<div class="org-src-container">
+
+<pre  class="src src-emacs-lisp"><span style="color: #969896;">(</span><span style="color: #b5bd68;">use-package</span> <span style="color: #81a2be;">ox-reveal</span>
+<span style="color: #b294bb;">:ensure</span> ox-reveal<span style="color: #969896;">)</span>
+
+<span style="color: #969896;">(</span><span style="color: #b5bd68;">setq</span> org-reveal-root <span style="color: #8abeb7;">"http://cdn.jsdelivr.net/reveal.js/3.0.0/"</span><span style="color: #969896;">)</span>
+<span style="color: #969896;">(</span><span style="color: #b5bd68;">setq</span> org-reveal-mathjax t<span style="color: #969896;">)</span>
+
+<span style="color: #969896;">(</span><span style="color: #b5bd68;">use-package</span> <span style="color: #81a2be;">htmlize</span>
+<span style="color: #b294bb;">:ensure</span> t<span style="color: #969896;">)</span>
+</pre>
+</div>
+</section>
+</section>
+</div>
+</div>
+Andrés Gasson
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/head.min.js"></script>
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: 'c',
+rollingLinks: true,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.20,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'cube', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>
