@@ -1,3 +1,11 @@
+#    -*- mode: org -*-
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:t reveal_control:t
+#+OPTIONS: reveal_mathjax:t reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+REVEAL_MARGIN: 0.2
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_TRANS: cube
 #+REVEAL_THEME: moon
 #+OPTIONS: toc:nil num:nil
 
@@ -26,10 +34,6 @@
 ** generate a CSR from existing Private key
 * Technical Section
 
-  This file originally came from an [[http://orgmode.org][org-mode]] file.
-  Create the script by tangling it with: =C-c C-v t=
-
-
 ** Check cert expiry
    This command is run against atea root CA cert
    #+BEGIN_SRC sh
@@ -40,106 +44,85 @@
 ** Root CA config
    openssl root CA config
    #+BEGIN_SRC sh
-[ ca ]
-default_ca = CA_default
-[ CA_default ]
-dir               = /root/atea/ca
-certs             = $dir/certs
-crl_dir           = $dir/crl
-new_certs_dir     = $dir/newcerts
-database          = $dir/index.txt
-serial            = $dir/serial
-RANDFILE          = $dir/private/.rand
-# The root key and root certificate.
-private_key       = $dir/private/ca.key.pem
-certificate       = $dir/certs/ca.cert.pem
-# SHA-1 is deprecated, so use SHA-2 instead.
-default_md        = sha256
-default_days      = 375
-policy            = policy_strict
-[ policy_strict ]
-# The root CA should only sign intermediate certificates that match.
-# See the POLICY FORMAT section of `man ca`.
-countryName             = match
-stateOrProvinceName     = match
-organizationName        = match
-organizationalUnitName  = optional
-commonName              = supplied
-emailAddress            = optional
+     [ ca ]
+     default_ca = CA_default
+     [ CA_default ]
+     dir               = /root/atea/ca
+     certs             = $dir/certs
+     crl_dir           = $dir/crl
+     new_certs_dir     = $dir/newcerts
+     database          = $dir/index.txt
+     serial            = $dir/serial
+     RANDFILE          = $dir/private/.rand
+     # The root key and root certificate.
+     private_key       = $dir/private/ca.key.pem
+     certificate       = $dir/certs/ca.cert.pem
+     # SHA-1 is deprecated, so use SHA-2 instead.
+     default_md        = sha256
+     default_days      = 375
+     policy            = policy_strict
+     [ policy_strict ]
+     # The root CA should only sign intermediate certificates that match.
+     # See the POLICY FORMAT section of `man ca`.
+     countryName             = match
+     stateOrProvinceName     = match
+     organizationName        = match
+     organizationalUnitName  = optional
+     commonName              = supplied
+     emailAddress            = optional
    #+END_SRC
 
 ** Check SSL cert
- #+BEGIN_SRC sh
-openssl s_client -connect dev-uaw:443
+   #+BEGIN_SRC sh
+     openssl s_client -connect dev-uaw:443
 
-CONNECTED(00000003)
-depth=2 C = NZ, ST = WLG, L = Khandallah, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Root CA
-verify return:1
-depth=1 C = NZ, ST = WLG, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Intermediate CA
-verify return:1
-depth=0 C = NZ, ST = WLG, L = Khandallah, O = Atea Systems, OU = Development, CN = dev-uaw, emailAddress = gas@ateasystems.com
-verify return:1
----
-Certificate chain
- 0 s:/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
-   i:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
- 1 s:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
-   i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
- 2 s:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
-   i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
----
-Server certificate
------BEGIN CERTIFICATE-----
-%DFEDF cert goobly-gook
------END CERTIFICATE-----
-subject=/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
-issuer=/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
----
-No client certificate CA names sent
-Server Temp Key: DH, 1024 bits
----
-SSL handshake has read 5023 bytes and written 445 bytes
----
-New, TLSv1/SSLv3, Cipher is DHE-RSA-AES256-SHA
-Server public key is 2048 bit
-Secure Renegotiation IS supported
-Compression: NONE
-Expansion: NONE
-SSL-Session:
-    Protocol  : TLSv1
-    Cipher    : DHE-RSA-AES256-SHA
-    Session-ID: E860D55A99BC6CCC99AEAE1805430C85EBAB8AB9FEFD0C6750D9A8BF319358F8
-    Session-ID-ctx:
-    Master-Key: 8F1E6F8D01D01286A2409789F954995E62801117ED14E44631724B696CE12DEDDDDA3F985A2EDF723322588271C783FE
-    Key-Arg   : None
-    Krb5 Principal: None
-    PSK identity: None
-    PSK identity hint: None
-    Start Time: 1495756470
-    Timeout   : 300 (sec)
-    Verify return code: 0 (ok)
----
+     CONNECTED(00000003)
+     depth=2 C = NZ, ST = WLG, L = Khandallah, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Root CA
+     verify return:1
+     depth=1 C = NZ, ST = WLG, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Intermediate CA
+     verify return:1
+     depth=0 C = NZ, ST = WLG, L = Khandallah, O = Atea Systems, OU = Development, CN = dev-uaw, emailAddress = gas@ateasystems.com
+     verify return:1
+     ---
+     Certificate chain
+     0 s:/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
+     i:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+     1 s:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+     i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+     2 s:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+     i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+     ---
+     Server certificate
+     -----BEGIN CERTIFICATE-----
+     %DFEDF cert goobly-gook
+     -----END CERTIFICATE-----
+     subject=/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
+     issuer=/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+     ---
+     No client certificate CA names sent
+     Server Temp Key: DH, 1024 bits
+     ---
+     SSL handshake has read 5023 bytes and written 445 bytes
+     ---
+     New, TLSv1/SSLv3, Cipher is DHE-RSA-AES256-SHA
+     Server public key is 2048 bit
+     Secure Renegotiation IS supported
+     Compression: NONE
+     Expansion: NONE
+     SSL-Session:
+     Protocol  : TLSv1
+     Cipher    : DHE-RSA-AES256-SHA
+     Session-ID: E860D55A99BC6CCC99AEAE1805430C85EBAB8AB9FEFD0C6750D9A8BF319358F8
+     Session-ID-ctx:
+     Master-Key: 8F1E6F8D01D01286A2409789F954995E62801117ED14E44631724B696CE12DEDDDDA3F985A2EDF723322588271C783FE
+     Key-Arg   : None
+     Krb5 Principal: None
+     PSK identity: None
+     PSK identity hint: None
+     Start Time: 1495756470
+     Timeout   : 300 (sec)
+     Verify return code: 0 (ok)
+     ---
 
    #+END_SRC
-** below slide
-   #+ATTR_REVEAL: :frag (roll-in)
- - list item 1
- - list item 2
- | a | b | c |
- +---+-+---+---+
- | 1 | 2 | 3 |
- | 4 | 5 | 6 |
- ++-+---+---+
-* reveal
- #+BEGIN_SRC emacs-lisp
-  (use-package ox-reveal
-  :ensure ox-reveal)
 
-  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-  (setq org-reveal-mathjax t)
-
-  (use-package htmlize
-  :ensure t)
- #+END_SRC
-
- #+RESULTS:

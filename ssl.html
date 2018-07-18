@@ -22,7 +22,6 @@
         document.getElementsByTagName( 'head' )[0].appendChild( link );
     }
 </script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
           <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
           <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
@@ -38,76 +37,72 @@
 <body>
 <div class="reveal">
 <div class="slides">
-<section id="sec-title-slide"><h2 class="author">Andrés Gasson</h2><p class="date">Created: 2018-07-19 Thu 10:29</p>
-</section>
-<section id="table-of-contents">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#/slide-org46c5e53">SSL and other stuff</a></li>
-<li><a href="#/slide-orgc5fb5f5">Public Key Cryptography</a></li>
-<li><a href="#/slide-orgf839fb3">SSL</a></li>
-</ul>
-</div>
-</div>
+<section id="sec-title-slide"><h2 class="author">Andrés Gasson</h2><p class="date">Created: 2018-07-19 Thu 10:34</p>
 </section>
 
 <section>
-<section id="slide-org46c5e53">
-<h2 id="org46c5e53">SSL and other stuff</h2>
-
-<div class="figure">
-<p><img src="./images/complex-sign.jpg" alt="complex-sign.jpg" />
+<section id="slide-orga1a6f69">
+<h2 id="orga1a6f69">Public Key cryptography</h2>
+<p>
+public key encryption is all about knowing a if you know one prime
+you can verify another. So having the secret (which is a passwrod
+proetcting one prime) allows any one that has the other prime to
+verify that anything done by the root prime is correct.
 </p>
-</div>
 </section>
 </section>
 <section>
-<section id="slide-orgc5fb5f5">
-<h2 id="orgc5fb5f5">Public Key Cryptography</h2>
-<p>
-  knowing if you know one prime you can verify another. So having
-the secret (which is a <b>password</b> protecting one of the primes)
-allows any one that has the other prime (public not password
-protected) to verify that signatures or encrypting <b>WAS</b> done by
-the root prime.
-</p>
-
-<div class="figure">
-<p><img src="./images/babelfish.png" alt="babelfish.png" />
-</p>
+<section id="slide-org3366e8a">
+<h2 id="org3366e8a">SSL</h2>
+<div class="outline-text-2" id="text-org3366e8a">
 </div>
 </section>
-<section id="slide-org9100d34">
-<h3 id="org9100d34">RSA maths</h3>
+<section id="slide-org4bc4143">
+<h3 id="org4bc4143">RSA</h3>
+<div class="org-src-container">
+
+<pre  class="src src-sh">openssl req <span style="color: #2aa198;">\</span>
+  -newkey rsa:2048 -nodes -sha256 -keyout domain.key <span style="color: #2aa198;">\</span>
+  -out domain.csr
+</pre>
+</div>
 <p>
-It's all about maths: actually exponentials and primes. So pick 2
-primes <b>p &amp; q</b>: p = 29, q = 31. Calculate
-\[n = {p^q} = {29^{31}} = 899\] Calculate \[t = {(p-1)^{(q-1)}}= {28^{30}}
-  = 840\] Choose a prime number <b>e</b>. <b>e</b> needs to be relatively prime to <b>t</b>
-(<b>t</b> cannot be divisible by <b>e</b>) Lets pick <b>11</b>. \[ d * e \equiv 1 \bmod
-  t\]
+The -newkey rsa:2048 option specifies that the key should be 2048-bit,
+generated using the RSA algorithm.
+The -nodes option specifies that
+the private key should not be encrypted with a pass phrase. The
+-new option, which is not included here but implied, indicates that a CSR
+is being generated.
+-sha256 adds option to sign the CSR with SHA-2 (make sure your CA
+supports SHA-2!)
 </p>
 
-
-
-
 </section>
-<section id="slide-orgb2f86be">
-<h3 id="orgb2f86be">RSA keys via openssl</h3>
+<section id="slide-org8410891">
+<h3 id="org8410891">generate a CSR from existing Private key</h3>
+</section>
+</section>
+<section>
+<section id="slide-org8395af8">
+<h2 id="org8395af8">Technical Section</h2>
+<div class="outline-text-2" id="text-org8395af8">
+</div>
+</section>
+<section id="slide-org228e61b">
+<h3 id="org228e61b">Check cert expiry</h3>
 <p>
-\[\frac{1}{n}\sqrt{e^\frac{1}{n} - e^\frac{1}{n+1}}\sim\frac{1}{n^2}\]
- Generate an AES encrypted RSA key.
+This command is run against atea root CA cert
 </p>
 <div class="org-src-container">
 
-<pre  class="src src-sh">openssl genrsa -aes256 -out private/ca.key.pem 4096
+<pre  class="src src-sh">openssl x509 -in certs/ca.cert.pem -noout -enddate
+
+&gt;<span style="color: #6c71c4;">notAfter</span>=Jan 14 05:37:20 2037 GMT
 </pre>
 </div>
 </section>
-<section id="slide-orgfd04ea0">
-<h3 id="orgfd04ea0">X509</h3>
+<section id="slide-org540406a">
+<h3 id="org540406a">Root CA config</h3>
 <p>
 openssl root CA config
 </p>
@@ -142,78 +137,63 @@ emailAddress            = optional
 </pre>
 </div>
 
+</section>
+<section id="slide-org961e833">
+<h3 id="org961e833">Check SSL cert</h3>
 <div class="org-src-container">
 
-<pre  class="src src-sh">
+<pre  class="src src-sh">openssl s_client -connect dev-uaw:443
+
+<span style="color: #b58900;">CONNECTED</span>(00000003)
+<span style="color: #6c71c4;">depth</span>=2 C = NZ, ST = WLG, L = Khandallah, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Root CA
+verify return:1
+<span style="color: #6c71c4;">depth</span>=1 C = NZ, ST = WLG, O = Ateasystems Ltd, OU = Ateasystems Certificate Authority, CN = Ateasystems Intermediate CA
+verify return:1
+<span style="color: #6c71c4;">depth</span>=0 C = NZ, ST = WLG, L = Khandallah, O = Atea Systems, OU = Development, CN = dev-uaw, emailAddress = gas@ateasystems.com
+verify return:1
+---
+Certificate chain
+0 s:/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
+i:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+1 s:/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+2 s:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+i:/C=NZ/ST=WLG/L=Khandallah/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Root CA
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+%DFEDF cert goobly-gook
+-----END CERTIFICATE-----
+<span style="color: #6c71c4;">subject</span>=/C=NZ/ST=WLG/L=Khandallah/O=Atea Systems/OU=Development/CN=dev-uaw/emailAddress=gas@ateasystems.com
+<span style="color: #6c71c4;">issuer</span>=/C=NZ/ST=WLG/O=Ateasystems Ltd/OU=Ateasystems Certificate Authority/CN=Ateasystems Intermediate CA
+---
+No client certificate CA names sent
+Server Temp Key: DH, 1024 bits
+---
+SSL handshake has read 5023 bytes and written 445 bytes
+---
+New, TLSv1/SSLv3, Cipher is DHE-RSA-AES256-SHA
+Server public key is 2048 bit
+Secure Renegotiation IS supported
+Compression: NONE
+Expansion: NONE
+SSL-Session:
+Protocol  : TLSv1
+Cipher    : DHE-RSA-AES256-SHA
+Session-ID: E860D55A99BC6CCC99AEAE1805430C85EBAB8AB9FEFD0C6750D9A8BF319358F8
+Session-ID-ctx:
+Master-Key: 8F1E6F8D01D01286A2409789F954995E62801117ED14E44631724B696CE12DEDDDDA3F985A2EDF723322588271C783FE
+Key-Arg   : None
+Krb5 Principal: None
+PSK identity: None
+PSK identity hint: None
+Start Time: 1495756470
+Timeout   : 300 (sec)
+Verify return code: 0 (ok)
+---
+
 </pre>
 </div>
-</section>
-</section>
-<section>
-<section id="slide-orgf839fb3">
-<h2 id="orgf839fb3">SSL</h2>
-<div class="outline-text-2" id="text-orgf839fb3">
-</div>
-</section>
-<section id="slide-orgcbb032d">
-<h3 id="orgcbb032d">frag example and table</h3>
-<ul>
-<li class="fragment roll-in">list item 1</li>
-<li class="fragment roll-in">list item 2</li>
-
-</ul>
-
-<p>
-table example
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">a</td>
-<td class="org-left">b</td>
-<td class="org-left">c</td>
-</tr>
-</tbody>
-</table>
-<p>
-<del>+-</del>---<del>---</del>
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-right" />
-
-<col  class="org-right" />
-
-<col  class="org-right" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-right">1</td>
-<td class="org-right">2</td>
-<td class="org-right">3</td>
-</tr>
-
-<tr>
-<td class="org-right">4</td>
-<td class="org-right">5</td>
-<td class="org-right">6</td>
-</tr>
-</tbody>
-</table>
-<p>
-<del>+-</del>---<del>---</del>
-</p>
 </section>
 </section>
 </div>
